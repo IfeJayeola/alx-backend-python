@@ -16,11 +16,11 @@ class ConversationSerializer(serializers.ModelSerializer):
             allow_empty = False)
     class Meta:
         model = Conversation
-        fields = ['id', 'participants', 'created_at']
+        fields = ['conversation_id', 'participants', 'created_at']
 
 
 class MessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Message
-        fields = ['id', 'sender_id', 'conversation', 'content', 'created_at']
+        fields = ['message_id', 'sender_id', 'conversation', 'message_body', 'sent_at']
 

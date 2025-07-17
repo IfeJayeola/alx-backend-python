@@ -13,10 +13,19 @@ class Role(models.TextChoices):
     GUEST = 'guest', 'Guest'
 
 class User(AbstractUser):
-    id = models.UUIDField(
+    user_id = models.UUIDField(
             primary_key=True, 
             default=uuid.uuid4, 
             editable = False)
+    first_name = models.CharField(
+            max_length = 30,
+            null = False)
+    last_name=models.CharField(
+            max_length=30,
+            null=False)
+    password=models.CharField(
+            max_length=20,
+            null=False)
     email = models.EmailField(unique=True)
     phone_number = models.CharField(
             max_length=20,
@@ -29,7 +38,7 @@ class User(AbstractUser):
     created_at = models.DateTimeField(auto_now_add=True)
 
 class Conversation(models.Model):
-    id = models.UUIDField(
+    conversation_id = models.UUIDField(
             primary_key=True, 
             default=uuid.uuid4, 
             editable=False)
@@ -39,7 +48,7 @@ class Conversation(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
 class Message(models.Model):
-    id = models.UUIDField(
+    message_id = models.UUIDField(
             primary_key=True, 
             default=uuid.uuid4, 
             editable=False)
@@ -51,7 +60,7 @@ class Message(models.Model):
             Conversation,
             on_delete=models.CASCADE,
             related_name='messages')
-    content = models.TextField()
-    created_at = models.DateTimeField(auto_now_add=True)
+    message_body = models.TextField()
+    sent_at = models.DateTimeField(auto_now_add=True)
 
 
