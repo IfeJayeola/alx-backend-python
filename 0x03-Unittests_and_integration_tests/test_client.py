@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import unittest
 from parameterized import parameterized
-from unittest.mock import patch
+from unittest.mock import PropertyMock, patch
 from client import GithubOrgClient
 
 
@@ -33,3 +33,28 @@ class TestGithubOrgClient(unittest.TestCase):
             client = GithubOrgClient('org_name')
             res = client.org()
             assert res['repos_url'] == "https://api.github.com/orgs/gle/repos"
+
+    @patch('client.get_json')
+    def test_public_repos(self, mock_get):
+        """Test the public_repos method."""
+        mock_get.return_value = [
+            {"name": "repo1", "license": {"key": "mit"}},
+            {"name": "repo2", "license": {"key": "apache-2.0"}},
+            {"name": "repo3", "license": {"key": "mit"}}
+        ]
+        with patch("client.GithubOrgClient._public_repos_url",
+                   new_callable=PropertyMock) as pub_get:
+            pub_get.return_value = "https://api.github.com/orgs/org/repos"
+            git_client = GithubOrgClient('org')
+            mock_result = git_client.public_repos()
+            mock_get.assert_called_once_with(
+                "https://api.github.com/orgs/org/repos")
+            self.assertEqual(mock_result, ["repo1", "repo2", "repo3"])
+            self.assertEqual(mock_get.call_count, 1)
+
+        @parameterized.expand([
+            ({"license": {"key": "my_license"}}, "my_license", True),
+            ({"license": {"key": "other_license"}}, "my_license", False)])
+        def test_has_license(self, repo, license_key, expected):
+            """Test the has_license method."""
+            assert GithubOrgClient.has_license(repo, license_key) == expected
