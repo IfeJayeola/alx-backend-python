@@ -14,6 +14,10 @@ class ConversationSerializer(serializers.ModelSerializer):
             many =True,
             queryset = User.objects.all(),
             allow_empty = False)
+    messages = serializers.PrimaryKeyRelatedField(
+            many=True,
+            read_only=True
+        )
     class Meta:
         model = Conversation
         fields = ['conversation_id', 'participants', 'created_at']
