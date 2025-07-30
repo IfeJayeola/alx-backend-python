@@ -14,7 +14,7 @@ class RequestLoggingMiddleware:
         #f"{datetime.now()} - User: {user} - Path: {request.path}“
         user = request.user if request.user.is_authenticated else "Anonymous"
 
-        with open("request_log.txt", "a") as log_file:
+        with open("requests.log", "a") as log_file:
             log_file.write(f"{datetime.now()} - User: {user} - Path: {request.path}")
         response = self.get_response(request)
         return response
@@ -31,8 +31,8 @@ class RestrictAccessByTimeMiddleware:
         current_time = datetime.now().time()
         start_time = datetime.strptime("21:00", "%H:%M").time()
         end_time = datetime.strptime("18:00", "%H:%M").time()
-        if not (start_time <= current_time <= end_time):
-            return HttpResponse("Forbidden", status=403)
+        if not  (current_time >= start_time or current_time <= end_time):
+            return HttpResponse("Forbidden: Access Time", status=403)
         response = self.get_response(request)
         return response
 
@@ -72,10 +72,10 @@ class RolepermissionMiddleware:
 
     def __call__(self, request):
         # Check if the user is authenticated and has the correct role
-        if request.user.is_authenticated:
+        if request.path_info == "/admin/dashboard/":
             user_role = request.user.role
             if user_role != "admin":
-                return HttpResponse("Forbidden", status=403)
+                return HttpResponse("Forbidden: Role Permission", status=403)
         response = self.get_response(request)
         return response
 
